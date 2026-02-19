@@ -48,6 +48,10 @@ public:
         return (power * hours) / 1000.0;
     }
 
+    string getName() {
+        return name;
+    }
+
     void display() {
         cout << left << setw(15) << name
              << setw(12) << power
@@ -90,11 +94,37 @@ void viewAppliances() {
     }
 }
 
+void searchAppliance() {
+    if (applianceCount == 0) {
+        cout << "No appliances to search.\n";
+        return;
+    }
+
+    string searchName;
+    cout << "Enter appliance name to search: ";
+    cin.ignore();
+    getline(cin, searchName);
+
+    bool found = false;
+
+    for (int i = 0; i < applianceCount; i++) {
+        if (appliances[i].getName() == searchName) {
+            appliances[i].display();
+            found = true;
+        }
+    }
+
+    if (!found) {
+        cout << "Appliance not found.\n";
+    }
+}
+
 void menu() {
     cout << "\n===== ELECTRICAL LOAD MONITORING SYSTEM =====\n";
     cout << "1. Register Appliance\n";
     cout << "2. View Appliances\n";
-    cout << "3. Exit\n";
+    cout << "3. Search Appliance\n";
+    cout << "4. Exit\n";
     cout << "Choose option: ";
 }
 
@@ -114,13 +144,16 @@ int main() {
                 viewAppliances();
                 break;
             case 3:
+                searchAppliance();
+                break;
+            case 4:
                 cout << "Exiting program...\n";
                 break;
             default:
                 cout << "Invalid choice. Try again.\n";
         }
 
-    } while (choice != 3);
+    } while (choice != 4);
 
     return 0;
 }
