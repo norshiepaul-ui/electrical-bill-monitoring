@@ -9,8 +9,8 @@ const int MAX_APPLIANCES = 100;
 class Appliance {
 private:
     string name;
-    double power;   // in watts
-    double hours;   // daily usage hours
+    double power;
+    double hours;
 
 public:
     Appliance() {
@@ -24,11 +24,24 @@ public:
         cin.ignore();
         getline(cin, name);
 
+        while (name.empty()) {
+            cout << "Name cannot be empty. Enter again: ";
+            getline(cin, name);
+        }
+
         cout << "Enter power rating (Watts): ";
         cin >> power;
+        while (power <= 0) {
+            cout << "Power must be greater than 0. Enter again: ";
+            cin >> power;
+        }
 
-        cout << "Enter daily usage hours: ";
+        cout << "Enter daily usage hours (0 - 24): ";
         cin >> hours;
+        while (hours < 0 || hours > 24) {
+            cout << "Usage hours must be between 0 and 24. Enter again: ";
+            cin >> hours;
+        }
     }
 
     double calculateEnergy() {
