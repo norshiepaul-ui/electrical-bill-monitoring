@@ -1,6 +1,3 @@
-// ================= PART 6 =================
-// Added Load From File Feature
-
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -79,14 +76,9 @@ public:
 Appliance appliances[MAX_APPLIANCES];
 int applianceCount = 0;
 
-// ================= LOAD DATA =================
 void loadFromFile() {
     ifstream inFile("appliances.txt");
     string line;
-
-    if (!inFile) {
-        return; // No file yet, skip loading
-    }
 
     while (getline(inFile, line) && applianceCount < MAX_APPLIANCES) {
         appliances[applianceCount].loadFromFile(line);
@@ -96,7 +88,6 @@ void loadFromFile() {
     inFile.close();
 }
 
-// ================= SAVE DATA =================
 void saveToFile() {
     ofstream outFile("appliances.txt");
 
@@ -108,7 +99,6 @@ void saveToFile() {
     cout << "Data saved successfully.\n";
 }
 
-// ================= REGISTER =================
 void registerAppliance() {
     if (applianceCount >= MAX_APPLIANCES) {
         cout << "Maximum appliance limit reached.\n";
@@ -120,7 +110,6 @@ void registerAppliance() {
     cout << "Appliance registered successfully!\n";
 }
 
-// ================= VIEW =================
 void viewAppliances() {
     if (applianceCount == 0) {
         cout << "No appliances registered.\n";
@@ -140,24 +129,30 @@ void viewAppliances() {
     }
 }
 
-// ================= SEARCH =================
-void searchAppliance() {
+void deleteAppliance() {
     if (applianceCount == 0) {
-        cout << "No appliances to search.\n";
+        cout << "No appliances to delete.\n";
         return;
     }
 
-    string searchName;
-    cout << "Enter appliance name to search: ";
+    string deleteName;
+    cout << "Enter appliance name to delete: ";
     cin.ignore();
-    getline(cin, searchName);
+    getline(cin, deleteName);
 
     bool found = false;
 
     for (int i = 0; i < applianceCount; i++) {
-        if (appliances[i].getName() == searchName) {
-            appliances[i].display();
+        if (appliances[i].getName() == deleteName) {
+
+            for (int j = i; j < applianceCount - 1; j++) {
+                appliances[j] = appliances[j + 1];
+            }
+
+            applianceCount--;
             found = true;
+            cout << "Appliance deleted successfully.\n";
+            break;
         }
     }
 
@@ -166,58 +161,19 @@ void searchAppliance() {
     }
 }
 
-// ================= BILLING =================
-double calculateTotalEnergy() {
-    double total = 0;
-
-    for (int i = 0; i < applianceCount; i++) {
-        total += appliances[i].calculateEnergy();
-    }
-
-    return total;
-}
-
-void calculateBill() {
-    if (applianceCount == 0) {
-        cout << "No appliances registered.\n";
-        return;
-    }
-
-    double tariff;
-    cout << "Enter electricity tariff per kWh: ";
-    cin >> tariff;
-
-    while (tariff <= 0) {
-        cout << "Tariff must be positive. Enter again: ";
-        cin >> tariff;
-    }
-
-    double totalEnergy = calculateTotalEnergy();
-    double totalCost = totalEnergy * tariff;
-
-    cout << fixed << setprecision(2);
-    cout << "\n------ BILLING SUMMARY ------\n";
-    cout << "Total Energy Consumption: " << totalEnergy << " kWh\n";
-    cout << "Tariff per kWh: " << tariff << endl;
-    cout << "Total Cost: " << totalCost << endl;
-}
-
-// ================= MENU =================
 void menu() {
     cout << "\n===== ELECTRICAL LOAD MONITORING SYSTEM =====\n";
     cout << "1. Register Appliance\n";
     cout << "2. View Appliances\n";
-    cout << "3. Search Appliance\n";
-    cout << "4. Calculate Billing\n";
-    cout << "5. Save Data\n";
-    cout << "6. Exit\n";
+    cout << "3. Delete Appliance\n";
+    cout << "4. Save Data\n";
+    cout << "5. Exit\n";
     cout << "Choose option: ";
 }
 
-// ================= MAIN =================
 int main() {
 
-    loadFromFile(); // Load saved data at start
+    loadFromFile();
 
     int choice;
 
@@ -228,10 +184,9 @@ int main() {
         switch (choice) {
             case 1: registerAppliance(); break;
             case 2: viewAppliances(); break;
-            case 3: searchAppliance(); break;
-            case 4: calculateBill(); break;
-            case 5: saveToFile(); break;
-            case 6:
+            case 3: deleteAppliance(); break;
+            case 4: saveToFile(); break;
+            case 5:
                 saveToFile();
                 cout << "Exiting program...\n";
                 break;
@@ -239,7 +194,7 @@ int main() {
                 cout << "Invalid choice. Try again.\n";
         }
 
-    } while (choice != 6);
+    } while (choice != 5);
 
     return 0;
 }
