@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -10,8 +11,8 @@ const int MAX_APPLIANCES = 100;
 class Appliance {
 private:
     string name;
-    double power;
-    double hours;
+    double power;      // in watts
+    double hours;      // daily usage hours
 
 public:
     Appliance() {
@@ -46,15 +47,12 @@ public:
     }
 
     double calculateEnergy() {
-        return (power * hours) / 1000.0;
+        return (power * hours) / 1000.0; // kWh
     }
 
     string getName() { return name; }
     double getPower() { return power; }
     double getHours() { return hours; }
-
-    void setPower(double p) { power = p; }
-    void setHours(double h) { hours = h; }
 
     void display() {
         cout << left << setw(15) << name
@@ -80,29 +78,6 @@ public:
 
 Appliance appliances[MAX_APPLIANCES];
 int applianceCount = 0;
-
-void loadFromFile() {
-    ifstream inFile("appliances.txt");
-    string line;
-
-    while (getline(inFile, line) && applianceCount < MAX_APPLIANCES) {
-        appliances[applianceCount].loadFromFile(line);
-        applianceCount++;
-    }
-
-    inFile.close();
-}
-
-void saveToFile() {
-    ofstream outFile("appliances.txt");
-
-    for (int i = 0; i < applianceCount; i++) {
-        appliances[i].saveToFile(outFile);
-    }
-
-    outFile.close();
-    cout << "Data saved successfully.\n";
-}
 
 void registerAppliance() {
     if (applianceCount >= MAX_APPLIANCES) {
@@ -134,44 +109,23 @@ void viewAppliances() {
     }
 }
 
-void updateAppliance() {
+void searchAppliance() {
     if (applianceCount == 0) {
-        cout << "No appliances to update.\n";
+        cout << "No appliances to search.\n";
         return;
     }
 
-    string updateName;
-    cout << "Enter appliance name to update: ";
+    string searchName;
+    cout << "Enter appliance name to search: ";
     cin.ignore();
-    getline(cin, updateName);
+    getline(cin, searchName);
 
     bool found = false;
 
     for (int i = 0; i < applianceCount; i++) {
-        if (appliances[i].getName() == updateName) {
-
-            double newPower, newHours;
-
-            cout << "Enter new power rating (Watts): ";
-            cin >> newPower;
-            while (newPower <= 0) {
-                cout << "Power must be greater than 0. Enter again: ";
-                cin >> newPower;
-            }
-
-            cout << "Enter new daily usage hours (0 - 24): ";
-            cin >> newHours;
-            while (newHours < 0 || newHours > 24) {
-                cout << "Usage hours must be between 0 and 24. Enter again: ";
-                cin >> newHours;
-            }
-
-            appliances[i].setPower(newPower);
-            appliances[i].setHours(newHours);
-
-            cout << "Appliance updated successfully.\n";
+        if (appliances[i].getName() == searchName) {
+            appliances[i].display();
             found = true;
-            break;
         }
     }
 
@@ -180,13 +134,70 @@ void updateAppliance() {
     }
 }
 
+double calculateTotalEnergy() {
+    double total = 0;
+    for (int i = 0; i < applianceCount; i++) {
+        total += appliances[i].calculateEnergy();
+    }
+    return total;
+}
+
+void calculateBill() {
+    if (applianceCount == 0) {
+        cout << "No appliances registered.\n";
+        return;
+    }
+
+    double tariff;
+    cout << "Enter electricity tariff per kWh: ";
+    cin >> tariff;
+
+    while (tariff <= 0) {
+        cout << "Tariff must be positive. Enter again: ";
+        cin >> tariff;
+    }
+
+    double totalEnergy = calculateTotalEnergy();
+    double totalCost = totalEnergy * tariff;
+
+    cout << fixed << setprecision(2);
+    cout << "\n------ BILLING SUMMARY ------\n";
+    cout << "Total Energy Consumption: " << totalEnergy << " kWh\n";
+    cout << "Tariff per kWh: " << tariff << endl;
+    cout << "Total Cost: " << totalCost << endl;
+}
+
+void saveToFile() {
+    ofstream outFile("appliances.txt");
+
+    for (int i = 0; i < applianceCount; i++) {
+        appliances[i].saveToFile(outFile);
+    }
+
+    outFile.close();
+    cout << "Data saved successfully.\n";
+}
+
+void loadFromFile() {
+    ifstream inFile("appliances.txt");
+    string line;
+
+    while (getline(inFile, line)) {
+        appliances[applianceCount].loadFromFile(line);
+        applianceCount++;
+    }
+
+    inFile.close();
+}
+
 void menu() {
     cout << "\n===== ELECTRICAL LOAD MONITORING SYSTEM =====\n";
     cout << "1. Register Appliance\n";
     cout << "2. View Appliances\n";
-    cout << "3. Update Appliance\n";
-    cout << "4. Save Data\n";
-    cout << "5. Exit\n";
+    cout << "3. Search Appliance\n";
+    cout << "4. Calculate Billing\n";
+    cout << "5. Save Data\n";
+    cout << "6. Exit\n";
     cout << "Choose option: ";
 }
 
@@ -201,11 +212,22 @@ int main() {
         cin >> choice;
 
         switch (choice) {
-            case 1: registerAppliance(); break;
-            case 2: viewAppliances(); break;
-            case 3: updateAppliance(); break;
-            case 4: saveToFile(); break;
+            case 1:
+                registerAppliance();
+                break;
+            case 2:
+                viewAppliances();
+                break;
+            case 3:
+                searchAppliance();
+                break;
+            case 4:
+                calculateBill();
+                break;
             case 5:
+                saveToFile();
+                break;
+            case 6:
                 saveToFile();
                 cout << "Exiting program...\n";
                 break;
@@ -213,7 +235,7 @@ int main() {
                 cout << "Invalid choice. Try again.\n";
         }
 
-    } while (choice != 5);
+    } while (choice != 6);
 
     return 0;
 }
