@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <iomanip>
 #include <string>
 
@@ -11,7 +12,7 @@ private:
     string name;
     double power;
     double hours;
- 
+
 public:
     Appliance() {
         name = "";
@@ -58,6 +59,10 @@ public:
              << setw(10) << hours
              << setw(10) << calculateEnergy()
              << endl;
+    }
+
+    void saveToFile(ofstream &outFile) {
+        outFile << name << "," << power << "," << hours << endl;
     }
 };
 
@@ -152,13 +157,25 @@ void calculateBill() {
     cout << "Total Cost: " << totalCost << endl;
 }
 
+void saveToFile() {
+    ofstream outFile("appliances.txt");
+
+    for (int i = 0; i < applianceCount; i++) {
+        appliances[i].saveToFile(outFile);
+    }
+
+    outFile.close();
+    cout << "Data saved successfully.\n";
+}
+
 void menu() {
     cout << "\n===== ELECTRICAL LOAD MONITORING SYSTEM =====\n";
     cout << "1. Register Appliance\n";
     cout << "2. View Appliances\n";
     cout << "3. Search Appliance\n";
     cout << "4. Calculate Billing\n";
-    cout << "5. Exit\n";
+    cout << "5. Save Data\n";
+    cout << "6. Exit\n";
     cout << "Choose option: ";
 }
 
@@ -184,13 +201,16 @@ int main() {
                 calculateBill();
                 break;
             case 5:
+                saveToFile();
+                break;
+            case 6:
                 cout << "Exiting program...\n";
                 break;
             default:
                 cout << "Invalid choice. Try again.\n";
         }
 
-    } while (choice != 5);
+    } while (choice != 6);
 
     return 0;
 }
