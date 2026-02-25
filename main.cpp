@@ -50,6 +50,11 @@ public:
     }
 
     string getName() { return name; }
+    double getPower() { return power; }
+    double getHours() { return hours; }
+
+    void setPower(double p) { power = p; }
+    void setHours(double h) { hours = h; }
 
     void display() {
         cout << left << setw(15) << name
@@ -129,29 +134,43 @@ void viewAppliances() {
     }
 }
 
-void deleteAppliance() {
+void updateAppliance() {
     if (applianceCount == 0) {
-        cout << "No appliances to delete.\n";
+        cout << "No appliances to update.\n";
         return;
     }
 
-    string deleteName;
-    cout << "Enter appliance name to delete: ";
+    string updateName;
+    cout << "Enter appliance name to update: ";
     cin.ignore();
-    getline(cin, deleteName);
+    getline(cin, updateName);
 
     bool found = false;
 
     for (int i = 0; i < applianceCount; i++) {
-        if (appliances[i].getName() == deleteName) {
+        if (appliances[i].getName() == updateName) {
 
-            for (int j = i; j < applianceCount - 1; j++) {
-                appliances[j] = appliances[j + 1];
+            double newPower, newHours;
+
+            cout << "Enter new power rating (Watts): ";
+            cin >> newPower;
+            while (newPower <= 0) {
+                cout << "Power must be greater than 0. Enter again: ";
+                cin >> newPower;
             }
 
-            applianceCount--;
+            cout << "Enter new daily usage hours (0 - 24): ";
+            cin >> newHours;
+            while (newHours < 0 || newHours > 24) {
+                cout << "Usage hours must be between 0 and 24. Enter again: ";
+                cin >> newHours;
+            }
+
+            appliances[i].setPower(newPower);
+            appliances[i].setHours(newHours);
+
+            cout << "Appliance updated successfully.\n";
             found = true;
-            cout << "Appliance deleted successfully.\n";
             break;
         }
     }
@@ -165,7 +184,7 @@ void menu() {
     cout << "\n===== ELECTRICAL LOAD MONITORING SYSTEM =====\n";
     cout << "1. Register Appliance\n";
     cout << "2. View Appliances\n";
-    cout << "3. Delete Appliance\n";
+    cout << "3. Update Appliance\n";
     cout << "4. Save Data\n";
     cout << "5. Exit\n";
     cout << "Choose option: ";
@@ -184,7 +203,7 @@ int main() {
         switch (choice) {
             case 1: registerAppliance(); break;
             case 2: viewAppliances(); break;
-            case 3: deleteAppliance(); break;
+            case 3: updateAppliance(); break;
             case 4: saveToFile(); break;
             case 5:
                 saveToFile();
