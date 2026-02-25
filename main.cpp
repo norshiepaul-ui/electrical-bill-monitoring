@@ -11,7 +11,7 @@ private:
     string name;
     double power;
     double hours;
-
+ 
 public:
     Appliance() {
         name = "";
@@ -119,12 +119,46 @@ void searchAppliance() {
     }
 }
 
+double calculateTotalEnergy() {
+    double total = 0;
+    for (int i = 0; i < applianceCount; i++) {
+        total += appliances[i].calculateEnergy();
+    }
+    return total;
+}
+
+void calculateBill() {
+    if (applianceCount == 0) {
+        cout << "No appliances registered.\n";
+        return;
+    }
+
+    double tariff;
+    cout << "Enter electricity tariff per kWh: ";
+    cin >> tariff;
+
+    while (tariff <= 0) {
+        cout << "Tariff must be positive. Enter again: ";
+        cin >> tariff;
+    }
+
+    double totalEnergy = calculateTotalEnergy();
+    double totalCost = totalEnergy * tariff;
+
+    cout << fixed << setprecision(2);
+    cout << "\n------ BILLING SUMMARY ------\n";
+    cout << "Total Energy Consumption: " << totalEnergy << " kWh\n";
+    cout << "Tariff per kWh: " << tariff << endl;
+    cout << "Total Cost: " << totalCost << endl;
+}
+
 void menu() {
     cout << "\n===== ELECTRICAL LOAD MONITORING SYSTEM =====\n";
     cout << "1. Register Appliance\n";
     cout << "2. View Appliances\n";
     cout << "3. Search Appliance\n";
-    cout << "4. Exit\n";
+    cout << "4. Calculate Billing\n";
+    cout << "5. Exit\n";
     cout << "Choose option: ";
 }
 
@@ -147,13 +181,16 @@ int main() {
                 searchAppliance();
                 break;
             case 4:
+                calculateBill();
+                break;
+            case 5:
                 cout << "Exiting program...\n";
                 break;
             default:
                 cout << "Invalid choice. Try again.\n";
         }
 
-    } while (choice != 4);
+    } while (choice != 5);
 
     return 0;
 }
