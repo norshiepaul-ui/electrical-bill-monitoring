@@ -1,3 +1,6 @@
+// ================= PART 6 =================
+// Added Load From File Feature
+
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -49,9 +52,7 @@ public:
         return (power * hours) / 1000.0;
     }
 
-    string getName() {
-        return name;
-    }
+    string getName() { return name; }
 
     void display() {
         cout << left << setw(15) << name
@@ -64,11 +65,50 @@ public:
     void saveToFile(ofstream &outFile) {
         outFile << name << "," << power << "," << hours << endl;
     }
+
+    void loadFromFile(string line) {
+        int pos1 = line.find(",");
+        int pos2 = line.find(",", pos1 + 1);
+
+        name = line.substr(0, pos1);
+        power = stod(line.substr(pos1 + 1, pos2 - pos1 - 1));
+        hours = stod(line.substr(pos2 + 1));
+    }
 };
 
 Appliance appliances[MAX_APPLIANCES];
 int applianceCount = 0;
 
+// ================= LOAD DATA =================
+void loadFromFile() {
+    ifstream inFile("appliances.txt");
+    string line;
+
+    if (!inFile) {
+        return; // No file yet, skip loading
+    }
+
+    while (getline(inFile, line) && applianceCount < MAX_APPLIANCES) {
+        appliances[applianceCount].loadFromFile(line);
+        applianceCount++;
+    }
+
+    inFile.close();
+}
+
+// ================= SAVE DATA =================
+void saveToFile() {
+    ofstream outFile("appliances.txt");
+
+    for (int i = 0; i < applianceCount; i++) {
+        appliances[i].saveToFile(outFile);
+    }
+
+    outFile.close();
+    cout << "Data saved successfully.\n";
+}
+
+// ================= REGISTER =================
 void registerAppliance() {
     if (applianceCount >= MAX_APPLIANCES) {
         cout << "Maximum appliance limit reached.\n";
@@ -80,25 +120,27 @@ void registerAppliance() {
     cout << "Appliance registered successfully!\n";
 }
 
+// ================= VIEW =================
 void viewAppliances() {
     if (applianceCount == 0) {
         cout << "No appliances registered.\n";
         return;
     }
 
-    cout << "\n-----------------------------------------------\n";
+    cout << "\n------------------------------------------------------\n";
     cout << left << setw(15) << "Name"
          << setw(12) << "Power(W)"
          << setw(10) << "Hours"
          << setw(10) << "kWh"
          << endl;
-    cout << "-----------------------------------------------\n";
+    cout << "------------------------------------------------------\n";
 
     for (int i = 0; i < applianceCount; i++) {
         appliances[i].display();
     }
 }
 
+// ================= SEARCH =================
 void searchAppliance() {
     if (applianceCount == 0) {
         cout << "No appliances to search.\n";
@@ -124,11 +166,14 @@ void searchAppliance() {
     }
 }
 
+// ================= BILLING =================
 double calculateTotalEnergy() {
     double total = 0;
+
     for (int i = 0; i < applianceCount; i++) {
         total += appliances[i].calculateEnergy();
     }
+
     return total;
 }
 
@@ -157,17 +202,7 @@ void calculateBill() {
     cout << "Total Cost: " << totalCost << endl;
 }
 
-void saveToFile() {
-    ofstream outFile("appliances.txt");
-
-    for (int i = 0; i < applianceCount; i++) {
-        appliances[i].saveToFile(outFile);
-    }
-
-    outFile.close();
-    cout << "Data saved successfully.\n";
-}
-
+// ================= MENU =================
 void menu() {
     cout << "\n===== ELECTRICAL LOAD MONITORING SYSTEM =====\n";
     cout << "1. Register Appliance\n";
@@ -179,7 +214,10 @@ void menu() {
     cout << "Choose option: ";
 }
 
+// ================= MAIN =================
 int main() {
+
+    loadFromFile(); // Load saved data at start
 
     int choice;
 
@@ -188,22 +226,13 @@ int main() {
         cin >> choice;
 
         switch (choice) {
-            case 1:
-                registerAppliance();
-                break;
-            case 2:
-                viewAppliances();
-                break;
-            case 3:
-                searchAppliance();
-                break;
-            case 4:
-                calculateBill();
-                break;
-            case 5:
-                saveToFile();
-                break;
+            case 1: registerAppliance(); break;
+            case 2: viewAppliances(); break;
+            case 3: searchAppliance(); break;
+            case 4: calculateBill(); break;
+            case 5: saveToFile(); break;
             case 6:
+                saveToFile();
                 cout << "Exiting program...\n";
                 break;
             default:
